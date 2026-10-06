@@ -18,13 +18,17 @@ const telemetryYaw = document.querySelector('#telemetry-yaw');
 const telemetryPitch = document.querySelector('#telemetry-pitch');
 const hudMode = document.querySelector('#hud-mode');
 const hudDot = document.querySelector('#hud-dot');
+const nav = document.querySelector('#nav');
+const navMenuButton = document.querySelector('.nav__menu');
+const navLinks = document.querySelectorAll('.nav__links a');
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 camera.position.set(0, 0.1, 8.5);
 
 const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+const getPixelRatio = () => Math.min(window.devicePixelRatio || 1, window.matchMedia('(max-width: 820px)').matches ? 1.35 : 1.75);
+renderer.setPixelRatio(getPixelRatio());
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.18;
@@ -163,6 +167,7 @@ function resize() {
   const { width, height } = stage.getBoundingClientRect();
   if (!width || !height) return;
   renderer.setSize(width, height, false);
+  renderer.setPixelRatio(getPixelRatio());
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   if (loaded) {
@@ -187,7 +192,23 @@ document.querySelectorAll('a, button').forEach((element) => {
   element.addEventListener('pointerleave', () => cursor.classList.remove('is-hover'));
 });
 if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) cursor.style.display = 'block';
-window.addEventListener('scroll', () => document.querySelector('#nav').classList.toggle('is-scrolled', window.scrollY > 8), { passive: true });
+function setMobileMenu(open) {
+  nav.classList.toggle('is-menu-open', open);
+  navMenuButton.setAttribute('aria-expanded', String(open));
+  navMenuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+}
+
+navMenuButton.addEventListener('click', () => {
+  setMobileMenu(navMenuButton.getAttribute('aria-expanded') !== 'true');
+});
+navLinks.forEach((link) => link.addEventListener('click', () => setMobileMenu(false)));
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') setMobileMenu(false);
+});
+window.addEventListener('pointerdown', (event) => {
+  if (!nav.contains(event.target)) setMobileMenu(false);
+});
+window.addEventListener('scroll', () => nav.classList.toggle('is-scrolled', window.scrollY > 8), { passive: true });
 resize();
 
 function animate() {

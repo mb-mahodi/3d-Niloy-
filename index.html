@@ -22,13 +22,13 @@
 
       <header class="nav" id="nav">
         <a class="brand" href="#top" aria-label="RIFT home"><svg viewBox="0 0 48 48"><use href="#rift-mark" /></svg><span>RIFT</span></a>
-        <nav class="nav__links" aria-label="Primary navigation">
+        <nav class="nav__links" id="mobile-navigation" aria-label="Primary navigation">
           <a href="#games" class="is-active">Games</a><a href="#finals">Tournaments</a><a href="#rankings">Leaderboards</a><a href="#games">Store</a><a href="#community">Community</a>
         </nav>
         <div class="nav__actions">
           <button class="icon-btn" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg></button>
           <a href="#community" class="link-btn">Sign in</a><a href="#games" class="btn btn--primary btn--sm"><span>Play free</span></a>
-          <button class="icon-btn nav__menu" type="button" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10" /></svg></button>
+          <button class="icon-btn nav__menu" type="button" aria-label="Open menu" aria-controls="mobile-navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10" /></svg></button>
         </div>
       </header>
 
@@ -45,7 +45,6 @@
 
       <section class="hero__content" id="games">
         <div class="hero__copy">
-          <a class="pill" href="#finals"><span class="pill__live"><i></i>LIVE</span><span>Season 04 · Neon Savanna</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
           <h1 class="headline" aria-label="Heads above the rest"><span class="headline__line"><span class="headline__word">Heads</span></span><span class="headline__line"><span class="headline__word">above</span></span><span class="headline__line"><span class="headline__word">the</span> <span class="headline__word headline__outline">rest.</span></span></h1>
           <p class="lede">Ranked ladders, weekly cups and live finals — built for players who see the whole map. Queue up, climb higher, and let the savanna watch.</p>
           <div class="cta"><a href="#finals" class="btn btn--primary"><span>Start playing — it's free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a><a href="#finals" class="btn btn--ghost"><span class="play-ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span><span>Watch trailer</span></a></div>
