@@ -9,4 +9,4 @@ npm install
 npm run dev
 ```
 
-The model in `public/spider-man_brand_new_day.glb` is copied into production builds and served from `/spider-man_brand_new_day.glb`. It is large, so the first load can take a moment.
+The model in `public/niloy_3D_Model.glb` is copied into production builds and served from `/niloy_3D_Model.glb`. It is Meshopt-compressed, and the loader enables the matching decoder. The model is large, so the first load can take a moment.

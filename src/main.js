@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import './style.css';
 
 const canvas = document.querySelector('#character-canvas');
@@ -44,35 +45,24 @@ const clock = new THREE.Clock();
 const pointer = new THREE.Vector2();
 const look = new THREE.Vector2();
 const gaze = new THREE.Vector2();
-let head;
-let neck;
-let headRest;
-let neckRest;
-let eyes = [];
 let loaded = false;
 let characterBaseY = 0;
-let blinkAt = 1.8 + Math.random() * 2.2;
-let blink = 0;
-let blinkStrength = 0;
 
-new GLTFLoader().load(
-  '/spider-man_brand_new_day.glb',
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+loader.load(
+  '/niloy_3D_Model.glb',
   ({ scene: model }) => {
     model.traverse((object) => {
       if (object.isMesh) {
         object.frustumCulled = true;
         object.castShadow = false;
         object.receiveShadow = false;
-        object.material.envMapIntensity = 1.15;
-        if (object.name === 'Object_74' || object.name === 'Object_76') eyes.push(object);
-      }
-      if (object.isBone && /Head_06/i.test(object.name)) {
-        head = object;
-        headRest = object.rotation.clone();
-      }
-      if (object.isBone && /Neck_05/i.test(object.name)) {
-        neck = object;
-        neckRest = object.rotation.clone();
+        if (Array.isArray(object.material)) {
+          object.material.forEach((material) => { material.envMapIntensity = 1.15; });
+        } else {
+          object.material.envMapIntensity = 1.15;
+        }
       }
     });
 
@@ -81,14 +71,13 @@ new GLTFLoader().load(
     const center = bounds.getCenter(new THREE.Vector3());
     const targetHeight = Math.min(stage.clientHeight * 0.0062, 5.2);
     const scale = targetHeight / size.y;
-    model.position.set(-center.x, -bounds.min.y, -center.z);
+    model.position.set(-center.x, -center.y, -center.z);
     model.scale.setScalar(scale);
     characterRoot.add(model);
-    characterRoot.position.y = -targetHeight * 0.06;
+    characterRoot.position.y = targetHeight * 0.47;
     characterBaseY = characterRoot.position.y;
     camera.position.z = Math.max(7.3, targetHeight * 1.9);
-    camera.lookAt(0, targetHeight * 0.47, 0);
-    eyes = eyes.map((eye) => ({ mesh: eye, scale: eye.scale.clone(), rotation: eye.rotation.clone() }));
+    camera.lookAt(0, characterBaseY, 0);
     loaded = true;
     loadingScreen.classList.add('is-hidden');
     hero.classList.add('is-ready');
@@ -148,18 +137,11 @@ function animate() {
   gaze.y = THREE.MathUtils.damp(gaze.y, look.y, 3.8, delta);
 
   if (loaded) {
-    const idleYaw = Math.sin(elapsed * 0.62) * 0.075 + Math.sin(elapsed * 0.27) * 0.035;
-    const idlePitch = Math.sin(elapsed * 0.48 + 1.2) * 0.035;
+    const idleYaw = Math.sin(elapsed * 0.62) * 0.045 + Math.sin(elapsed * 0.27) * 0.02;
+    const idlePitch = Math.sin(elapsed * 0.48 + 1.2) * 0.018;
     characterRoot.position.y = characterBaseY + Math.sin(elapsed * 0.8) * 0.045;
-    characterRoot.rotation.y = Math.sin(elapsed * 0.23) * 0.045 + gaze.x * 0.075;
-    if (neck) {
-      neck.rotation.y = THREE.MathUtils.damp(neck.rotation.y, neckRest.y + idleYaw * 0.55 + gaze.x * 0.2, 3.2, delta);
-      neck.rotation.x = THREE.MathUtils.damp(neck.rotation.x, neckRest.x + idlePitch * 0.6 - gaze.y * 0.09, 3.2, delta);
-    }
-    if (head) {
-      head.rotation.y = THREE.MathUtils.damp(head.rotation.y, headRest.y + idleYaw + gaze.x * 0.28, 3.8, delta);
-      head.rotation.x = THREE.MathUtils.damp(head.rotation.x, headRest.x + idlePitch - gaze.y * 0.16, 3.8, delta);
-    }
+    characterRoot.rotation.y = THREE.MathUtils.damp(characterRoot.rotation.y, idleYaw + gaze.x * 0.14, 2.8, delta);
+    characterRoot.rotation.x = THREE.MathUtils.damp(characterRoot.rotation.x, idlePitch - gaze.y * 0.055, 2.8, delta);
     telemetryYaw.textContent = `${gaze.x >= 0 ? '+' : ''}${(gaze.x * 32).toFixed(1)}°`;
     telemetryPitch.textContent = `${gaze.y >= 0 ? '+' : ''}${(gaze.y * 18).toFixed(1)}°`;
     const tracking = Math.abs(pointer.x) + Math.abs(pointer.y) > 0.12;
@@ -167,23 +149,6 @@ function animate() {
     hudDot.classList.toggle('is-tracking', tracking);
     hudDot.classList.toggle('is-idle', !tracking);
 
-    blinkAt -= delta;
-    if (blinkAt <= 0) {
-      blink = 0.001;
-      blinkAt = 2.8 + Math.random() * 3.6;
-    }
-    if (blink > 0) {
-      blink += delta;
-      blinkStrength = Math.sin(Math.min(blink / 0.18, 1) * Math.PI);
-      if (blink >= 0.18) blink = 0;
-    } else {
-      blinkStrength = 0;
-    }
-    for (const { mesh, scale, rotation } of eyes) {
-      mesh.scale.y = THREE.MathUtils.lerp(scale.y, scale.y * 0.13, blinkStrength);
-      mesh.rotation.x = rotation.x - gaze.y * 0.035;
-      mesh.rotation.y = rotation.y + gaze.x * 0.055;
-    }
   }
 
   renderer.render(scene, camera);
