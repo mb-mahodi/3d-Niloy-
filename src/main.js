@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import './style.css';
+import './reference.css';
 
 const canvas = document.querySelector('#character-canvas');
 const stage = document.querySelector('.model-stage');
@@ -45,8 +46,59 @@ const clock = new THREE.Clock();
 const pointer = new THREE.Vector2();
 const look = new THREE.Vector2();
 const gaze = new THREE.Vector2();
+const headMotionUniforms = [];
 let loaded = false;
-let characterBaseY = 0;
+const characterFacingOffset = THREE.MathUtils.degToRad(265);
+const characterPitchOffset = THREE.MathUtils.degToRad(-20);
+
+function enableHeadMotion(material, pivot, startY, endY) {
+  const uniforms = {
+    yaw: { value: 0 },
+    pitch: { value: 0 },
+    pivot: { value: pivot.clone() },
+    startY: { value: startY },
+    endY: { value: endY },
+  };
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uHeadYaw = uniforms.yaw;
+    shader.uniforms.uHeadPitch = uniforms.pitch;
+    shader.uniforms.uHeadPivot = uniforms.pivot;
+    shader.uniforms.uHeadStartY = uniforms.startY;
+    shader.uniforms.uHeadEndY = uniforms.endY;
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <common>',
+      `#include <common>
+      uniform float uHeadYaw;
+      uniform float uHeadPitch;
+      uniform vec3 uHeadPivot;
+      uniform float uHeadStartY;
+      uniform float uHeadEndY;
+      vec3 rotateHead(vec3 point) {
+        float cy = cos(uHeadYaw);
+        float sy = sin(uHeadYaw);
+        float cp = cos(uHeadPitch);
+        float sp = sin(uHeadPitch);
+        vec3 pitched = vec3(cp * point.x - sp * point.y, sp * point.x + cp * point.y, point.z);
+        return vec3(cy * pitched.x + sy * pitched.z, pitched.y, -sy * pitched.x + cy * pitched.z);
+      }`,
+    );
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <beginnormal_vertex>',
+      `#include <beginnormal_vertex>
+      float headNormalWeight = smoothstep(uHeadStartY, uHeadEndY, position.y);
+      objectNormal = normalize(mix(objectNormal, rotateHead(objectNormal), headNormalWeight));`,
+    );
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>
+      float headPositionWeight = smoothstep(uHeadStartY, uHeadEndY, position.y);
+      transformed = mix(transformed, uHeadPivot + rotateHead(transformed - uHeadPivot), headPositionWeight);`,
+    );
+  };
+  material.customProgramCacheKey = () => 'rift-head-motion-v1';
+  material.needsUpdate = true;
+  headMotionUniforms.push(uniforms);
+}
 
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
@@ -69,15 +121,26 @@ loader.load(
     const bounds = new THREE.Box3().setFromObject(model);
     const size = bounds.getSize(new THREE.Vector3());
     const center = bounds.getCenter(new THREE.Vector3());
+    const headPivot = center.clone();
+    headPivot.y = bounds.min.y + size.y * 0.43;
+    const headStartY = bounds.min.y + size.y * 0.32;
+    const headEndY = bounds.min.y + size.y * 0.58;
+    model.traverse((object) => {
+      if (!object.isMesh) return;
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      materials.forEach((material) => enableHeadMotion(material, headPivot, headStartY, headEndY));
+    });
     const targetHeight = Math.min(stage.clientHeight * 0.0062, 5.2);
     const scale = targetHeight / size.y;
     model.position.set(-center.x, -center.y, -center.z);
     model.scale.setScalar(scale);
     characterRoot.add(model);
-    characterRoot.position.y = targetHeight * 0.47;
-    characterBaseY = characterRoot.position.y;
+    const cameraTargetY = targetHeight * 0.47;
+    //Model X Y %
+    characterRoot.position.y = cameraTargetY - targetHeight * 0.06;
+    characterRoot.rotation.y = characterFacingOffset;
     camera.position.z = Math.max(7.3, targetHeight * 1.9);
-    camera.lookAt(0, characterBaseY, 0);
+    camera.lookAt(0, cameraTargetY, 0);
     loaded = true;
     loadingScreen.classList.add('is-hidden');
     hero.classList.add('is-ready');
@@ -131,21 +194,22 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.05);
   const elapsed = clock.elapsedTime;
-  look.x = THREE.MathUtils.damp(look.x, pointer.x, 2.3, delta);
-  look.y = THREE.MathUtils.damp(look.y, pointer.y, 2.3, delta);
-  gaze.x = THREE.MathUtils.damp(gaze.x, look.x, 3.8, delta);
-  gaze.y = THREE.MathUtils.damp(gaze.y, look.y, 3.8, delta);
+  look.x = THREE.MathUtils.damp(look.x, pointer.x, 8, delta);
+  look.y = THREE.MathUtils.damp(look.y, pointer.y, 8, delta);
+  gaze.x = THREE.MathUtils.damp(gaze.x, look.x, 13, delta);
+  gaze.y = THREE.MathUtils.damp(gaze.y, look.y, 13, delta);
 
   if (loaded) {
-    const idleYaw = Math.sin(elapsed * 0.62) * 0.045 + Math.sin(elapsed * 0.27) * 0.02;
-    const idlePitch = Math.sin(elapsed * 0.48 + 1.2) * 0.018;
-    characterRoot.position.y = characterBaseY + Math.sin(elapsed * 0.8) * 0.045;
-    characterRoot.rotation.y = THREE.MathUtils.damp(characterRoot.rotation.y, idleYaw + gaze.x * 0.14, 2.8, delta);
-    characterRoot.rotation.x = THREE.MathUtils.damp(characterRoot.rotation.x, idlePitch - gaze.y * 0.055, 2.8, delta);
+    const idleYaw = Math.sin(elapsed * 0.62) * 0.055;
+    const idlePitch = Math.sin(elapsed * 0.48 + 1.2) * 0.025;
+    for (const uniforms of headMotionUniforms) {
+      uniforms.yaw.value = THREE.MathUtils.damp(uniforms.yaw.value, gaze.x * 0.45 + idleYaw, 7, delta);
+      uniforms.pitch.value = THREE.MathUtils.damp(uniforms.pitch.value, gaze.y * 0.34 + idlePitch + characterPitchOffset, 11, delta);
+    }
     telemetryYaw.textContent = `${gaze.x >= 0 ? '+' : ''}${(gaze.x * 32).toFixed(1)}°`;
     telemetryPitch.textContent = `${gaze.y >= 0 ? '+' : ''}${(gaze.y * 18).toFixed(1)}°`;
     const tracking = Math.abs(pointer.x) + Math.abs(pointer.y) > 0.12;
-    hudMode.textContent = tracking ? 'TRACKING' : 'IDLE';
+    hudMode.textContent = tracking ? 'TRACKING CURSOR' : 'IDLE';
     hudDot.classList.toggle('is-tracking', tracking);
     hudDot.classList.toggle('is-idle', !tracking);
 
