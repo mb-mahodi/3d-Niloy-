@@ -9,4 +9,4 @@ npm install
 npm run dev
 ```
 
-The Vite server serves `spider-man_brand_new_day.glb` from the project root. The model is large, so the first load can take a moment.
+The model in `public/spider-man_brand_new_day.glb` is copied into production builds and served from `/spider-man_brand_new_day.glb`. It is large, so the first load can take a moment.
