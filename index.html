@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#060608" />
+    <meta name="description" content="RIFT is a competitive gaming platform for players who play beyond the expected." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <title>RIFT — Play beyond the limits</title>
+  </head>
+  <body>
+    <svg class="svg-library" aria-hidden="true">
+      <symbol id="rift-mark" viewBox="0 0 48 48"><path d="M8 10h32L20 32h20v6H8l20-22H8z" fill="currentColor" /><circle cx="38" cy="10" r="4" fill="var(--red)" /></symbol>
+    </svg>
+    <main class="hero" id="top">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__glow"></div><div class="hero__grid"></div>
+        <div class="hero__word"><span>RIFT</span></div><div class="hero__noise"></div>
+      </div>
+
+      <header class="nav" id="nav">
+        <a class="brand" href="#top" aria-label="RIFT home"><svg viewBox="0 0 48 48"><use href="#rift-mark" /></svg><span>RIFT</span></a>
+        <nav class="nav__links" aria-label="Primary navigation">
+          <a href="#games" class="is-active">Games</a><a href="#finals">Tournaments</a><a href="#rankings">Leaderboards</a><a href="#games">Store</a><a href="#community">Community</a>
+        </nav>
+        <div class="nav__actions">
+          <button class="icon-btn" type="button" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg></button>
+          <a href="#community" class="link-btn">Sign in</a><a href="#games" class="btn btn--primary btn--sm"><span>Play free</span></a>
+          <button class="icon-btn nav__menu" type="button" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10" /></svg></button>
+        </div>
+      </header>
+
+      <div class="reticle" aria-hidden="true"><svg viewBox="0 0 400 400"><circle class="reticle__outer" cx="200" cy="200" r="196" /><circle class="reticle__mid" cx="200" cy="200" r="172" /><circle class="reticle__inner" cx="200" cy="200" r="150" /><path class="reticle__ticks" d="M200 0v18M200 382v18M0 200h18M382 200h18" /><path class="reticle__arc" d="M60 200A140 140 0 0 1 200 60M340 200A140 140 0 0 1 200 340" /></svg></div>
+      <div class="model-stage" aria-label="Interactive 3D character model"><canvas id="character-canvas" aria-label="Animated 3D character. Move your pointer to look around." role="img"></canvas></div>
+      <div class="hero__fade" aria-hidden="true"></div>
+
+      <div class="hud" aria-hidden="true">
+        <span class="hud__corner tl"></span><span class="hud__corner tr"></span><span class="hud__corner bl"></span><span class="hud__corner br"></span>
+        <div class="hud__tag hud__tag--subject mono"><span class="hud__k">SUBJECT</span><span>R-01 / WEB RUNNER</span></div>
+        <div class="hud__tag hud__tag--status mono"><span class="hud__dot is-idle" id="hud-dot"></span><span id="hud-mode">IDLE</span></div>
+        <div class="hud__telemetry mono"><div><span class="hud__k">YAW</span><b id="telemetry-yaw">+00.0°</b></div><div><span class="hud__k">PITCH</span><b id="telemetry-pitch">+00.0°</b></div><div><span class="hud__k">OPTIC</span><b>100%</b></div></div>
+      </div>
+
+      <section class="hero__content" id="games">
+        <div class="hero__copy">
+          <a class="pill" href="#finals"><span class="pill__live"><i></i>LIVE</span><span>Season 01 · Neon District</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+          <h1 class="headline" aria-label="Play beyond the limits"><span class="headline__line"><span class="headline__word">Play</span> <span class="headline__word">beyond</span></span><span class="headline__line"><span class="headline__word">the</span> <span class="headline__word headline__outline">limits.</span></span></h1>
+          <p class="lede">Ranked ladders, weekly cups and live finals, built for players who see the whole map. Queue up, climb higher, make your move.</p>
+          <div class="cta"><a href="#finals" class="btn btn--primary"><span>Start playing — it's free</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a><a href="#finals" class="btn btn--ghost"><span class="play-ico"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span><span>Watch trailer</span></a></div>
+          <div class="social-proof"><div class="avatars" aria-hidden="true"><span>R</span><span>V</span><span>K</span><span>J</span></div><p><b>241,387</b> players online now</p></div>
+        </div>
+
+        <aside class="hero__side" aria-label="Live tournament and leaderboard">
+          <article class="card card--event" id="finals">
+            <header><span class="card__k mono">LIVE FINALS</span><span class="badge">EU · NA</span></header>
+            <h2>Midnight Showdown</h2>
+            <div class="prize"><span class="card__k mono">PRIZE POOL</span><b>$<span>250,000</span></b></div>
+            <div class="countdown mono"><div><b>02</b><span>HRS</span></div><i>:</i><div><b>14</b><span>MIN</span></div><i>:</i><div><b>36</b><span>SEC</span></div></div>
+          </article>
+          <article class="card card--board" id="rankings">
+            <header><span class="card__k mono">TOP OF THE LADDER</span><span class="card__k mono">SR</span></header>
+            <ol class="board"><li><span class="rank">01</span><span class="board__avatar board__avatar--red"></span><span class="name">silkstrike</span><span class="bar"><i style="--w:96%"></i></span><b class="mono">4,812</b></li><li><span class="rank">02</span><span class="board__avatar board__avatar--blue"></span><span class="name">phase_shift</span><span class="bar"><i style="--w:88%"></i></span><b class="mono">4,655</b></li><li><span class="rank">03</span><span class="board__avatar board__avatar--gold"></span><span class="name">nightbyte</span><span class="bar"><i style="--w:81%"></i></span><b class="mono">4,502</b></li></ol>
+          </article>
+        </aside>
+      </section>
+
+      <div class="hero__bottom" id="community"><div class="scroll-cue mono" aria-hidden="true"><span class="scroll-cue__line"></span>SCROLL</div><div class="ticker" aria-label="Featured games"><div class="ticker__track"><span>NEON DISTRICT</span><i>✦</i><span>WEBRUNNER</span><i>✦</i><span>AFTERHOURS</span><i>✦</i><span>RIFT ROYALE</span><i>✦</i><span>SHADOW CIRCUIT</span><i>✦</i><span>GLASS CITY</span><i>✦</i><span>NEON DISTRICT</span><i>✦</i><span>WEBRUNNER</span><i>✦</i><span>AFTERHOURS</span><i>✦</i><span>RIFT ROYALE</span><i>✦</i><span>SHADOW CIRCUIT</span><i>✦</i><span>GLASS CITY</span><i>✦</i></div></div></div>
+
+      <div class="loading-screen" id="loading-screen"><svg class="loading-screen__mark" viewBox="0 0 48 48"><use href="#rift-mark" /></svg><div class="loading-screen__label mono">BOOTING R-01 <span id="loading-percent">000</span>%</div><div class="loading-screen__bar"><span id="loading-bar"></span></div></div>
+      <div class="error-message" id="error-message" hidden>Character couldn't load. Check the model file and refresh.</div>
+      <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span><span class="cursor__dot"></span></div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
